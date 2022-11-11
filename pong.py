@@ -1,46 +1,66 @@
 import pygame as py
+import time
 from reketid import Reket
 from pall import Pall
 
 py.init()
 
 #värvid
-
 tausta_värv = (202,135,150)
 valge = (255,255,255)
+skooriVärv = (179,82,104)
 
 #ekraan
-
-ekraani_suurus = (700,500)
+kõrgus = 400
+laius = 800
+ekraani_suurus = (laius, kõrgus)
 ekraan = py.display.set_mode(ekraani_suurus)
-py.display.set_caption("Poooong")
+py.display.set_caption("PyPong")
 
 #muu kasulik
-
+player1score = 0
+player2score = 0
+reketiKõrgus = 75
+reketiLaius = 5
 clock = py.time.Clock()
 kordus = True
+mängAlgas = False
 
 #reketid
-
-reketPlayer = Reket(valge, 5, 75)
-reketArvuti = Reket(valge, 5, 75)
-reketPlayer.rect.x = 20
-reketPlayer.rect.y = 200
-reketArvuti.rect.x = 670
-reketArvuti.rect.y = 200
+reketiKiirus = 8
+player1 = Reket(valge, reketiLaius, reketiKõrgus)
+player2 = Reket(valge, reketiLaius, reketiKõrgus)
+player1.rect.x = 20
+player1.rect.y = kõrgus / 2 - reketiKõrgus / 2
+player2.rect.x = laius - 30
+player2.rect.y = kõrgus / 2 - reketiKõrgus / 2
 
 #pall
+palliKõrgus = 10
+pall = Pall(valge, palliKõrgus, palliKõrgus)
+pall.rect.x = laius/2 - palliKõrgus/2
+pall.rect.y = kõrgus/2 - palliKõrgus/2
 
-pall = Pall(valge, 10, 10)
-pall.rect.x = 345
-pall.rect.y = 245
-
-#spritedega mässamine
-
+#sprited
 kõik_sprited = py.sprite.Group()
-kõik_sprited.add(reketPlayer)
-kõik_sprited.add(reketArvuti)
-kõik_sprited.add(pall)
+kõik_sprited.add(player1)
+kõik_sprited.add(player2)
+
+def reset():
+    py.draw.circle(ekraan, skooriVärv,[pall.rect.x+palliKõrgus/2,pall.rect.y+palliKõrgus/2], palliKõrgus*1.5)
+    py.display.flip()
+    kõik_sprited.remove(pall)
+    pall.rect.x = laius/2 - palliKõrgus/2
+    pall.rect.y = kõrgus/2 - palliKõrgus/2
+    if pall.velocity[0] < 0:
+        pall.velocity[0] = -pall.velocity[0]
+    else:
+        pall.velocity[0] = pall.velocity[0]
+    pall.velocity[1] =  0
+    player1.rect.y = kõrgus / 2 - reketiKõrgus / 2
+    player2.rect.y = kõrgus / 2 - reketiKõrgus / 2
+    kõik_sprited.add(pall)
+    time.sleep(1)
 
 while kordus:
     #Kui quit
@@ -56,34 +76,60 @@ while kordus:
     #reketi kontroll
     nupud = py.key.get_pressed()
     if nupud[py.K_w]:
-        reketPlayer.liiguÜles(5)
+        player1.liiguÜles(reketiKiirus)
     if nupud[py.K_s]:
-        reketPlayer.liiguAlla(5)
+        player1.liiguAlla(reketiKiirus)
+    if nupud[py.K_UP]:
+        player2.liiguÜles(reketiKiirus)
+    if nupud[py.K_DOWN]:
+        player2.liiguAlla(reketiKiirus)
     
     #palli põrkumine
-    if pall.rect.x >= 690:
+    if py.sprite.collide_mask(pall, player1) or py.sprite.collide_mask(pall, player2):
+        pall.põrge()
+
+    if pall.rect.x >= laius-10:
+        player1score += 1
         pall.velocity[0] = -pall.velocity[0]
+        reset()
     if pall.rect.x <= 0:
+        player2score += 1
         pall.velocity[0] = -pall.velocity[0]
-    if pall.rect.y > 490:
+        reset()
+    if pall.rect.y > kõrgus - palliKõrgus:
         pall.velocity[1] = -pall.velocity[1]
     if pall.rect.y < 0:
-        pall.velocity[1] = -pall.velocity[1]
-    
-    if py.sprite.collide_mask(pall, reketPlayer) or py.sprite.collide_mask(pall, reketArvuti):
-        pall.põrge()
+        pall.velocity[1] = -pall.velocity[1]    
 
     #ekraanile joonestamise kood:
 
     ekraan.fill(tausta_värv)
+
+    font = py.font.Font(None, 74)
+    tekst = font.render(str(player1score), 1, skooriVärv)
+    ekraan.blit(tekst, (40, 10))
+    tekst = font.render(str(player2score), 1, skooriVärv)
+    ekraan.blit(tekst, (laius -72, 10))
     
     #mängulaua graafika
-    py.draw.circle(ekraan, valge,[349,250], 125)
-    py.draw.circle(ekraan, tausta_värv,[349,250], 122)
-    py.draw.line(ekraan, valge, [349,0], [349,500], 3)
+    py.draw.circle(ekraan, valge,[laius/2,kõrgus/2], 125)
+    py.draw.circle(ekraan, tausta_värv,[laius/2,kõrgus/2], 122)
+    py.draw.line(ekraan, valge, [laius/2,0], [laius/2,kõrgus], 3)
 
     #joonestan ekraanile kõik
-    kõik_sprited.draw(ekraan)
+    kõik_sprited.draw(ekraan) 
+
+    if mängAlgas == False:
+        tekst = font.render('Vajuta ENTER, et alustada!', True, skooriVärv)
+        tekstiTaust = py.Surface([laius, kõrgus])
+        tekstiKast = tekst.get_rect(center=(laius/2, kõrgus/2))
+        tekstiTaust.fill(tausta_värv)
+        tekstiTaust.blit(tekst, tekstiKast)
+        ekraan.blit(tekstiTaust, (0, 0))
+        
+        if py.key.get_pressed()[py.K_RETURN]:
+            mängAlgas = True
+            kõik_sprited.add(pall)
 
     py.display.flip()
     clock.tick(60)

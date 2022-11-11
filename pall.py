@@ -11,7 +11,7 @@ class Pall(pygame.sprite.Sprite):
         self.image.set_colorkey(must)
 
         pygame.draw.rect(self.image, color, [0, 0, pikkus, kõrgus])
-        self.velocity = [randint(4,8), randint(-8,8)]
+        self.velocity = [randint(4,8), 0]
         self.rect = self.image.get_rect()
 
     def update(self):

@@ -20,5 +20,5 @@ class Reket(pygame.sprite.Sprite):
 
     def liiguAlla(self, pikslid):
         self.rect.y += pikslid
-        if self.rect.y > 425:
-            self.rect.y = 425
+        if self.rect.y > 325:
+            self.rect.y = 325
