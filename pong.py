@@ -47,7 +47,7 @@ kõik_sprited.add(player1)
 kõik_sprited.add(player2)
 
 def reset():
-    py.draw.circle(ekraan, skooriVärv,[pall.rect.x+palliKõrgus/2,pall.rect.y+palliKõrgus/2], palliKõrgus*1.5)
+    py.draw.circle(ekraan, skooriVärv,[pall.rect.x+palliKõrgus/2,pall.rect.y+palliKõrgus/2], palliKõrgus*2)
     py.display.flip()
     kõik_sprited.remove(pall)
     pall.rect.x = laius/2 - palliKõrgus/2
@@ -129,6 +129,16 @@ while kordus:
         
         if py.key.get_pressed()[py.K_RETURN]:
             mängAlgas = True
+            for i in range(4):
+                tekst = font.render(str(3-i), True, skooriVärv)
+                tekstiTaust = py.Surface([laius, kõrgus])
+                tekstiKast = tekst.get_rect(center=(laius/2, kõrgus/2))
+                tekstiTaust.fill(tausta_värv)
+                tekstiTaust.blit(tekst, tekstiKast)
+                ekraan.blit(tekstiTaust, (0, 0))
+                time.sleep(1)
+                py.display.flip()
+                
             kõik_sprited.add(pall)
 
     py.display.flip()
