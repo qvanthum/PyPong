@@ -32,7 +32,7 @@ player1 = Reket(valge, reketiLaius, reketiKõrgus)
 player2 = Reket(valge, reketiLaius, reketiKõrgus)
 player1.rect.x = 20
 player1.rect.y = kõrgus / 2 - reketiKõrgus / 2
-player2.rect.x = laius - 30
+player2.rect.x = laius - 25
 player2.rect.y = kõrgus / 2 - reketiKõrgus / 2
 
 #pall
@@ -88,7 +88,7 @@ while kordus:
     if py.sprite.collide_mask(pall, player1) or py.sprite.collide_mask(pall, player2):
         pall.põrge()
 
-    if pall.rect.x >= laius-10:
+    if pall.rect.x >= laius - palliKõrgus:
         player1score += 1
         pall.velocity[0] = -pall.velocity[0]
         reset()
